@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TenderInputPage extends StatelessWidget {
+  const TenderInputPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -17,9 +19,9 @@ class TenderInputPage extends StatelessWidget {
             LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth > 600) {
-                  return WideLayout();
+                  return const WideLayout();
                 } else {
-                  return NarrowLayout();
+                  return const NarrowLayout();
                 }
               },
             ),
@@ -31,21 +33,24 @@ class TenderInputPage extends StatelessWidget {
 }
 
 class WideLayout extends StatelessWidget {
+  const WideLayout({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
+        const Row(
           children: [
             Expanded(child: CustomTextField(labelText: 'Tender ID')),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(child: CustomTextField(labelText: 'Doc Price')),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: CustomTextField(labelText: 'Tender Security')),
+            const Expanded(
+                child: CustomTextField(labelText: 'Tender Security')),
             const SizedBox(width: 16),
             Expanded(
               child: DropdownButtonFormField<String>(
@@ -63,7 +68,7 @@ class WideLayout extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Name of Work', maxLines: 3),
+        const CustomTextField(labelText: 'Name of Work', maxLines: 3),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -97,23 +102,23 @@ class WideLayout extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        const Row(
           children: [
             Expanded(child: CustomTextField(labelText: 'Liquid')),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(child: CustomTextField(labelText: 'Similar')),
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        const Row(
           children: [
             Expanded(child: CustomTextField(labelText: 'Turnover')),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(child: CustomTextField(labelText: 'Tender Capacity')),
           ],
         ),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Others'),
+        const CustomTextField(labelText: 'Others'),
         const SizedBox(height: 20),
         Center(
           child: ElevatedButton(
@@ -132,15 +137,17 @@ class WideLayout extends StatelessWidget {
 }
 
 class NarrowLayout extends StatelessWidget {
+  const NarrowLayout({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomTextField(labelText: 'Tender ID'),
+        const CustomTextField(labelText: 'Tender ID'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Doc Price'),
+        const CustomTextField(labelText: 'Doc Price'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Tender Security'),
+        const CustomTextField(labelText: 'Tender Security'),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
           decoration: const InputDecoration(
@@ -154,7 +161,7 @@ class NarrowLayout extends StatelessWidget {
           onChanged: (newValue) {},
         ),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Name of Work', maxLines: 3),
+        const CustomTextField(labelText: 'Name of Work', maxLines: 3),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
           decoration: const InputDecoration(
@@ -180,15 +187,15 @@ class NarrowLayout extends StatelessWidget {
           onChanged: (newValue) {},
         ),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Liquid'),
+        const CustomTextField(labelText: 'Liquid'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Similar'),
+        const CustomTextField(labelText: 'Similar'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Turnover'),
+        const CustomTextField(labelText: 'Turnover'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Tender Capacity'),
+        const CustomTextField(labelText: 'Tender Capacity'),
         const SizedBox(height: 16),
-        CustomTextField(labelText: 'Others'),
+        const CustomTextField(labelText: 'Others'),
         const SizedBox(height: 20),
         Center(
           child: ElevatedButton(
@@ -210,7 +217,8 @@ class CustomTextField extends StatelessWidget {
   final String labelText;
   final int maxLines;
 
-  CustomTextField({required this.labelText, this.maxLines = 1});
+  const CustomTextField(
+      {super.key, required this.labelText, this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {

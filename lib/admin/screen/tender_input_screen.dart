@@ -1,7 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:live_tender_bd_admin/admin/service/database.dart';
+import 'package:live_tender_bd_admin/admin/widget/narrow_layout.dart';
+import 'package:live_tender_bd_admin/admin/widget/wide_layout.dart';
 
-class TenderInputPage extends StatelessWidget {
-  const TenderInputPage({super.key});
+class TenderInputPage extends StatefulWidget {
+  const TenderInputPage({Key? key}) : super(key: key);
+
+  @override
+  _TenderInputPageState createState() => _TenderInputPageState();
+}
+
+class _TenderInputPageState extends State<TenderInputPage> {
+  final tenderIdController = TextEditingController();
+  final docPriceController = TextEditingController();
+  final tenderSecurityController = TextEditingController();
+  final methodController = TextEditingController();
+  final nameOfWorkController = TextEditingController();
+  final departmentController = TextEditingController();
+  final locationController = TextEditingController();
+  final liquidController = TextEditingController();
+  final similarController = TextEditingController();
+  final turnoverController = TextEditingController();
+  final tenderCapacityController = TextEditingController();
+  final othersController = TextEditingController();
+
+  void submitForm() async {
+    final databaseMethods = DatabaseMethods();
+    final tenderId = tenderIdController.text;
+    final docPrice = docPriceController.text;
+    final tenderSecurity = tenderSecurityController.text;
+    final method = methodController.text;
+    final nameOfWork = nameOfWorkController.text;
+    final location = locationController.text;
+    final liquid = liquidController.text;
+
+    if (tenderId.isEmpty ||
+        docPrice.isEmpty ||
+        tenderSecurity.isEmpty ||
+        method.isEmpty ||
+        nameOfWork.isEmpty ||
+        location.isEmpty ||
+        liquid.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Please fill in all required fields.",
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return;
+    }
+
+    if (await databaseMethods.tenderIdExists(tenderId)) {
+      Fluttertoast.showToast(
+        msg: "Tender ID already exists. Please use a different ID.",
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return;
+    }
+
+    final uniqueId = databaseMethods.generateUniqueId();
+    final tenderData = {
+      'tenderId': tenderId,
+      'docPrice': docPrice,
+      'tenderSecurity': tenderSecurity,
+      'method': method,
+      'nameOfWork': nameOfWork,
+      'department': departmentController.text,
+      'location': location,
+      'liquid': liquid,
+      'similar': similarController.text,
+      'turnover': turnoverController.text,
+      'tenderCapacity': tenderCapacityController.text,
+      'others': othersController.text,
+    };
+
+    try {
+      await databaseMethods.addTender(tenderData, uniqueId);
+      Fluttertoast.showToast(
+        msg: "Tender submitted successfully!",
+        toastLength: Toast.LENGTH_LONG,
+      );
+
+      // Clear form fields after a short delay
+      setState(() {
+        clearFormFields();
+      });
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error submitting tender: $e",
+        toastLength: Toast.LENGTH_LONG,
+      );
+    }
+  }
+
+  void clearFormFields() {
+    tenderIdController.clear();
+    docPriceController.clear();
+    tenderSecurityController.clear();
+    methodController.clear();
+    nameOfWorkController.clear();
+    departmentController.clear();
+    locationController.clear();
+    liquidController.clear();
+    similarController.clear();
+    turnoverController.clear();
+    tenderCapacityController.clear();
+    othersController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,197 +136,22 @@ class TenderInputPage extends StatelessWidget {
   }
 }
 
-class WideLayout extends StatelessWidget {
-  const WideLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Row(
-          children: [
-            Expanded(child: CustomTextField(labelText: 'Tender ID')),
-            SizedBox(width: 16),
-            Expanded(child: CustomTextField(labelText: 'Doc Price')),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            const Expanded(
-                child: CustomTextField(labelText: 'Tender Security')),
-            const SizedBox(width: 16),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: 'Method', border: OutlineInputBorder()),
-                items: ['LTM', 'OTM', 'CTM'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {},
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Name of Work', maxLines: 3),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: 'Department', border: OutlineInputBorder()),
-                items: ['LGED', 'PWD', 'RHD'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {},
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: 'Location', border: OutlineInputBorder()),
-                items: ['Dhaka', 'Chittagong', 'Khulna'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {},
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const Row(
-          children: [
-            Expanded(child: CustomTextField(labelText: 'Liquid')),
-            SizedBox(width: 16),
-            Expanded(child: CustomTextField(labelText: 'Similar')),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const Row(
-          children: [
-            Expanded(child: CustomTextField(labelText: 'Turnover')),
-            SizedBox(width: 16),
-            Expanded(child: CustomTextField(labelText: 'Tender Capacity')),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Others'),
-        const SizedBox(height: 20),
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              // Handle form submission
-            },
-            child: const Text('Submit'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class NarrowLayout extends StatelessWidget {
-  const NarrowLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const CustomTextField(labelText: 'Tender ID'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Doc Price'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Tender Security'),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-              labelText: 'Method', border: OutlineInputBorder()),
-          items: ['LTM', 'OTM', 'CTM'].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (newValue) {},
-        ),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Name of Work', maxLines: 3),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-              labelText: 'Department', border: OutlineInputBorder()),
-          items: ['LGED', 'PWD', 'RHD'].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (newValue) {},
-        ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-              labelText: 'Location', border: OutlineInputBorder()),
-          items: ['Dhaka', 'Chittagong', 'Khulna'].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (newValue) {},
-        ),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Liquid'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Similar'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Turnover'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Tender Capacity'),
-        const SizedBox(height: 16),
-        const CustomTextField(labelText: 'Others'),
-        const SizedBox(height: 20),
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              // Handle form submission
-            },
-            child: const Text('Submit'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class CustomTextField extends StatelessWidget {
   final String labelText;
   final int maxLines;
+  final TextEditingController controller;
 
-  const CustomTextField(
-      {super.key, required this.labelText, this.maxLines = 1});
+  const CustomTextField({
+    Key? key, // Make key parameter nullable
+    required this.labelText,
+    required this.controller,
+    this.maxLines = 1,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         border: const OutlineInputBorder(),

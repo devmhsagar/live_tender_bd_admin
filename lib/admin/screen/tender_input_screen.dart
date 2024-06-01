@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:live_tender_bd_admin/admin/service/database.dart';
@@ -24,22 +25,58 @@ class _TenderInputPageState extends State<TenderInputPage> {
   final turnoverController = TextEditingController();
   final tenderCapacityController = TextEditingController();
   final othersController = TextEditingController();
+  final tenderLastDateController = TextEditingController();
+
+  List<String> departments = [];
+  List<String> locations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDepartments();
+    fetchLocations();
+  }
+
+  void fetchDepartments() async {
+    final QuerySnapshot result =
+        await FirebaseFirestore.instance.collection('departments').get();
+    final List<DocumentSnapshot> documents = result.docs;
+    setState(() {
+      departments = documents.map((doc) => doc['name'] as String).toList();
+    });
+  }
+
+  void fetchLocations() async {
+    final QuerySnapshot result =
+        await FirebaseFirestore.instance.collection('locations').get();
+    final List<DocumentSnapshot> documents = result.docs;
+    setState(() {
+      locations = documents.map((doc) => doc['name'] as String).toList();
+    });
+  }
 
   void submitForm() async {
     final databaseMethods = DatabaseMethods();
-    final tenderId = tenderIdController.text;
-    final docPrice = docPriceController.text;
-    final tenderSecurity = tenderSecurityController.text;
-    final method = methodController.text;
-    final nameOfWork = nameOfWorkController.text;
-    final location = locationController.text;
-    final liquid = liquidController.text;
+    final tenderId = tenderIdController.text.trim();
+    final docPrice = docPriceController.text.trim();
+    final tenderSecurity = tenderSecurityController.text.trim();
+    final method = methodController.text.trim();
+    final nameOfWork = nameOfWorkController.text.trim();
+    final department = departmentController.text.trim();
+    final location = locationController.text.trim();
+    final liquid = liquidController.text.trim();
+    final similar = similarController.text.trim();
+    final turnover = turnoverController.text.trim();
+    final tenderCapacity = tenderCapacityController.text.trim();
+    final others = othersController.text.trim();
+    final tenderLastDate = tenderLastDateController.text.trim();
 
     if (tenderId.isEmpty ||
         docPrice.isEmpty ||
         tenderSecurity.isEmpty ||
         method.isEmpty ||
         nameOfWork.isEmpty ||
+        department.isEmpty ||
         location.isEmpty ||
         liquid.isEmpty) {
       Fluttertoast.showToast(
@@ -49,50 +86,39 @@ class _TenderInputPageState extends State<TenderInputPage> {
       return;
     }
 
-    if (await databaseMethods.tenderIdExists(tenderId)) {
+    final tenderIdExists = await databaseMethods.tenderIdExists(tenderId);
+    if (tenderIdExists) {
       Fluttertoast.showToast(
-        msg: "Tender ID already exists. Please use a different ID.",
+        msg: "Tender ID already exists.",
         toastLength: Toast.LENGTH_LONG,
       );
       return;
     }
 
     final uniqueId = databaseMethods.generateUniqueId();
-    final tenderData = {
+    final tenderDetails = {
       'tenderId': tenderId,
       'docPrice': docPrice,
       'tenderSecurity': tenderSecurity,
       'method': method,
       'nameOfWork': nameOfWork,
-      'department': departmentController.text,
+      'department': department,
       'location': location,
       'liquid': liquid,
-      'similar': similarController.text,
-      'turnover': turnoverController.text,
-      'tenderCapacity': tenderCapacityController.text,
-      'others': othersController.text,
+      'similar': similar,
+      'turnover': turnover,
+      'tenderCapacity': tenderCapacity,
+      'others': others,
+      'tenderLastDate': tenderLastDate, 
     };
 
-    try {
-      await databaseMethods.addTender(tenderData, uniqueId);
-      Fluttertoast.showToast(
-        msg: "Tender submitted successfully!",
-        toastLength: Toast.LENGTH_LONG,
-      );
+    await databaseMethods.addTender(tenderDetails, uniqueId);
 
-      // Clear form fields after a short delay
-      setState(() {
-        clearFormFields();
-      });
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error submitting tender: $e",
-        toastLength: Toast.LENGTH_LONG,
-      );
-    }
-  }
+    Fluttertoast.showToast(
+      msg: "Tender details submitted successfully.",
+      toastLength: Toast.LENGTH_LONG,
+    );
 
-  void clearFormFields() {
     tenderIdController.clear();
     docPriceController.clear();
     tenderSecurityController.clear();
@@ -105,58 +131,54 @@ class _TenderInputPageState extends State<TenderInputPage> {
     turnoverController.clear();
     tenderCapacityController.clear();
     othersController.clear();
+    tenderLastDateController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tender Insert Form',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 600) {
-                  return const WideLayout();
-                } else {
-                  return const NarrowLayout();
-                }
-              },
-            ),
-          ],
-        ),
+    final isWideLayout = MediaQuery.of(context).size.width > 600;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tender Input Page'),
       ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  final String labelText;
-  final int maxLines;
-  final TextEditingController controller;
-
-  const CustomTextField({
-    Key? key, // Make key parameter nullable
-    required this.labelText,
-    required this.controller,
-    this.maxLines = 1,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(),
-        labelText: labelText,
-      ),
+      body: isWideLayout
+          ? WideLayout(
+              departments: departments,
+              locations: locations,
+              tenderIdController: tenderIdController,
+              docPriceController: docPriceController,
+              tenderSecurityController: tenderSecurityController,
+              methodController: methodController,
+              nameOfWorkController: nameOfWorkController,
+              departmentController: departmentController,
+              locationController: locationController,
+              liquidController: liquidController,
+              similarController: similarController,
+              turnoverController: turnoverController,
+              tenderCapacityController: tenderCapacityController,
+              othersController: othersController,
+              tenderLastDateController: tenderLastDateController,
+              submitForm: submitForm,
+            )
+          : NarrowLayout(
+              departments: departments,
+              locations: locations,
+              tenderIdController: tenderIdController,
+              docPriceController: docPriceController,
+              tenderSecurityController: tenderSecurityController,
+              methodController: methodController,
+              nameOfWorkController: nameOfWorkController,
+              departmentController: departmentController,
+              locationController: locationController,
+              liquidController: liquidController,
+              similarController: similarController,
+              turnoverController: turnoverController,
+              tenderCapacityController: tenderCapacityController,
+              othersController: othersController,
+              tenderLastDateController: tenderLastDateController,
+              submitForm: submitForm,
+            ),
     );
   }
 }

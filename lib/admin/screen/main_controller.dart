@@ -26,7 +26,7 @@ class MainController extends GetxController {
         currentPage = AddLocationPage();
         break;
       case '/add-department':
-        currentPage = const AddDepartmentPage();
+        currentPage = InsertDepartmentForm();
         break;
       case '/logout':
         // Handle logout

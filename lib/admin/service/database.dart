@@ -3,21 +3,33 @@ import 'package:uuid/uuid.dart';
 
 class DatabaseMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Uuid _uuid = Uuid();
+  final Uuid _uuid = const Uuid();
 
+  // Method to add tender details to Firestore
   Future<void> addTender(Map<String, dynamic> addTenderMap, String id) async {
-    return await _firestore.collection("tenders").doc(id).set(addTenderMap);
+    try {
+      await _firestore.collection("tenders").doc(id).set(addTenderMap);
+    } catch (e) {
+      print('Error adding tender: $e');
+    }
   }
 
+  // Method to generate a unique ID
   String generateUniqueId() {
     return _uuid.v4();
   }
 
+  // Method to check if a tender ID already exists
   Future<bool> tenderIdExists(String tenderId) async {
-    final querySnapshot = await _firestore
-        .collection("tenders")
-        .where('tenderId', isEqualTo: tenderId)
-        .get();
-    return querySnapshot.docs.isNotEmpty;
+    try {
+      final querySnapshot = await _firestore
+          .collection("tenders")
+          .where('tenderId', isEqualTo: tenderId)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking tender ID: $e');
+      return false;
+    }
   }
 }

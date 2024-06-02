@@ -1,25 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:live_tender_bd_admin/admin/service/tender_view_model.dart';
 import 'package:uuid/uuid.dart';
 
 class DatabaseMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Uuid _uuid = const Uuid();
 
-  // Method to add tender details to Firestore
-  Future<void> addTender(Map<String, dynamic> addTenderMap, String id) async {
+  Future<void> addTender(Tender tender) async {
     try {
-      await _firestore.collection("tenders").doc(id).set(addTenderMap);
+      await _firestore.collection("tenders").doc(tender.id).set(tender.toMap());
     } catch (e) {
       print('Error adding tender: $e');
     }
   }
 
-  // Method to generate a unique ID
   String generateUniqueId() {
     return _uuid.v4();
   }
 
-  // Method to check if a tender ID already exists
   Future<bool> tenderIdExists(String tenderId) async {
     try {
       final querySnapshot = await _firestore

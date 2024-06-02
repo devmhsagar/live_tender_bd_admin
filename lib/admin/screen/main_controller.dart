@@ -17,7 +17,7 @@ class MainController extends GetxController {
         currentPage = AllTenderPage();
         break;
       case '/tender-input':
-        currentPage = TenderInputPage();
+        currentPage = const TenderInputPage();
         break;
       case '/add-tender-method':
         currentPage = AddTenderMethodPage();

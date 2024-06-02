@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:live_tender_bd_admin/admin/service/database.dart';
+import 'package:live_tender_bd_admin/admin/service/tender_view_model.dart';
 import 'package:live_tender_bd_admin/admin/widget/narrow_layout.dart';
 import 'package:live_tender_bd_admin/admin/widget/wide_layout.dart';
 
@@ -78,7 +79,9 @@ class _TenderInputPageState extends State<TenderInputPage> {
         nameOfWork.isEmpty ||
         department.isEmpty ||
         location.isEmpty ||
-        liquid.isEmpty) {
+        liquid.isEmpty ||
+        tenderLastDate.isEmpty) {
+      // Check tenderLastDate as well
       Fluttertoast.showToast(
         msg: "Please fill in all required fields.",
         toastLength: Toast.LENGTH_LONG,
@@ -96,23 +99,25 @@ class _TenderInputPageState extends State<TenderInputPage> {
     }
 
     final uniqueId = databaseMethods.generateUniqueId();
-    final tenderDetails = {
-      'tenderId': tenderId,
-      'docPrice': docPrice,
-      'tenderSecurity': tenderSecurity,
-      'method': method,
-      'nameOfWork': nameOfWork,
-      'department': department,
-      'location': location,
-      'liquid': liquid,
-      'similar': similar,
-      'turnover': turnover,
-      'tenderCapacity': tenderCapacity,
-      'others': others,
-      'tenderLastDate': tenderLastDate, 
-    };
+    final tender = Tender(
+      id: uniqueId,
+      tenderId: tenderId,
+      docPrice: docPrice,
+      tenderSecurity: tenderSecurity,
+      method: method,
+      nameOfWork: nameOfWork,
+      department: department,
+      location: location,
+      lastDate: tenderLastDate, // Pass tenderLastDate to lastDate
+      liquid: liquid,
+      similar: similar,
+      turnover: turnover,
+      tenderCapacity: tenderCapacity,
+      others: others,
+      tenderLastDate: tenderLastDate,
+    );
 
-    await databaseMethods.addTender(tenderDetails, uniqueId);
+    await databaseMethods.addTender(tender);
 
     Fluttertoast.showToast(
       msg: "Tender details submitted successfully.",

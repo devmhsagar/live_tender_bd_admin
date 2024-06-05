@@ -3,8 +3,9 @@ import 'package:live_tender_bd_admin/admin/service/tender_view_model.dart';
 
 class NarrowLayout extends StatelessWidget {
   final List<Tender> tenders;
+  final Function(String) onDelete;
 
-  NarrowLayout({required this.tenders});
+  NarrowLayout({required this.tenders, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class NarrowLayout extends StatelessWidget {
               children: [
                 Text(
                   tender.nameOfWork,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(tender.department),
@@ -41,7 +42,7 @@ class NarrowLayout extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
-                    // Implement delete functionality
+                    onDelete(tender.tenderId);
                   },
                 ),
                 IconButton(

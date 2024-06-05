@@ -12,11 +12,11 @@ class MainLayout extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Header(),
+          const Header(),
           Expanded(
             child: Row(
               children: [
-                Sidebar(),
+                const Sidebar(),
                 Expanded(
                   child: GetBuilder<MainController>(
                     init: MainController(),

@@ -30,4 +30,18 @@ class DatabaseMethods {
       return false;
     }
   }
+
+  Future<void> deleteTender(String tenderId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection("tenders")
+          .where('tenderId', isEqualTo: tenderId)
+          .get();
+      for (var doc in querySnapshot.docs) {
+        await _firestore.collection("tenders").doc(doc.id).delete();
+      }
+    } catch (e) {
+      print('Error deleting tender: $e');
+    }
+  }
 }

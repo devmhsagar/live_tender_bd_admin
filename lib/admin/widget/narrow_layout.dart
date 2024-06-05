@@ -66,7 +66,7 @@ class NarrowLayout extends StatelessWidget {
               labelText: 'Method',
               border: OutlineInputBorder(),
             ),
-            items: ['LTM', 'OTM', 'CTM'].map((String value) {
+            items: ['LTM', 'OTM', 'OSTETM', 'RFQU', 'RFQ'].map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),

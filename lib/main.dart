@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:live_tender_bd_admin/admin/screen/main_layout.dart';
+import 'package:live_tender_bd_admin/admin/auth/login_screen.dart';
+import 'package:live_tender_bd_admin/admin/screen/dashboard_screen.dart';
 import 'package:live_tender_bd_admin/admin/service/department_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -27,9 +28,13 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => DepartmentProvider()),
       ],
-      child: const GetMaterialApp(
+      child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        home: MainLayout(),
+        home: LoginPage(),
+        getPages: [
+          GetPage(name: '/', page: () => LoginPage()),
+          GetPage(name: '/dashboard', page: () => DashboardPage()),
+        ],
       ),
     );
   }

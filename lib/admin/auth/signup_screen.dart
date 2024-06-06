@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:live_tender_bd_admin/admin/auth/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'login_screen.dart';
 
 class SignUpPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -9,6 +9,40 @@ class SignUpPage extends StatelessWidget {
       TextEditingController();
 
   SignUpPage({super.key});
+
+  Future<void> _signUp(BuildContext context) async {
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailController.text, password: passwordController.text);
+      // Handle successful signup and navigate to login page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Signup failed')),
+      );
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signup failed')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +89,7 @@ class SignUpPage extends StatelessWidget {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle sign up
-                    print('Email: ${emailController.text}');
-                    print('Password: ${passwordController.text}');
-                    print(
-                        'Confirm Password: ${confirmPasswordController.text}');
+                    _signUp(context);
                   },
                   child: const Text('Sign Up'),
                   style: ElevatedButton.styleFrom(
@@ -68,53 +98,13 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Or sign up with'),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        'assets/icons/google_icon.svg',
-                        width: 30,
-                        height: 30,
-                      ),
-                      onPressed: () {
-                        // Handle Google sign up
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        'assets/icons/facebook_icon.svg',
-                        width: 30,
-                        height: 30,
-                      ),
-                      onPressed: () {
-                        // Handle Facebook sign up
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        'assets/icons/twitter_icon.svg',
-                        width: 30,
-                        height: 30,
-                      ),
-                      onPressed: () {
-                        // Handle Twitter sign up
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     const Text('Already have an account? '),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => LoginPage()),
                         );

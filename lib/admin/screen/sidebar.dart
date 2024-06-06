@@ -9,7 +9,7 @@ class Sidebar extends StatelessWidget {
     return Container(
       width: 250,
       color: Colors.grey[800],
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SidebarItem(Icons.list, 'All Tender', '/all-tender'),
@@ -17,7 +17,7 @@ class Sidebar extends StatelessWidget {
           SidebarItem(Icons.add_box, 'Add Tender Method', '/add-tender-method'),
           SidebarItem(Icons.add_location, 'Add Location', '/add-location'),
           SidebarItem(Icons.add_business, 'Add Department', '/add-department'),
-          const Spacer(),
+          Spacer(),
           SidebarItem(Icons.logout, 'Logout', '/logout'),
         ],
       ),

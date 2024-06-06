@@ -7,7 +7,7 @@ class SidebarItem extends StatelessWidget {
   final String label;
   final String route;
 
-  SidebarItem(this.icon, this.label, this.route);
+  const SidebarItem(this.icon, this.label, this.route, {super.key});
 
   @override
   Widget build(BuildContext context) {

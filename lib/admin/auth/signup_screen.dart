@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 import 'login_screen.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -13,7 +14,7 @@ class SignUpPage extends StatelessWidget {
   Future<void> _signUp(BuildContext context) async {
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match')),
+        const SnackBar(content: Text('Passwords do not match')),
       );
       return;
     }
@@ -39,7 +40,7 @@ class SignUpPage extends StatelessWidget {
     } catch (e) {
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signup failed')),
+        const SnackBar(content: Text('Signup failed')),
       );
     }
   }

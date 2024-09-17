@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/get_navigation.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:live_tender_bd_admin/admin/auth/login_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/add_department_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/add_location_screen.dart';
@@ -12,9 +10,9 @@ import 'package:live_tender_bd_admin/admin/screen/tender_input_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainController extends GetxController {
-  Widget currentPage = const Center(
-      child: Text('Welcome to the Dashboard',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)));
+  var currentPage = Rx<Widget>(const Center(
+    child: Text('Welcome to the Dashboard', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
+  ));
 
   @override
   void onInit() {
@@ -34,30 +32,29 @@ class MainController extends GetxController {
   void navigateTo(String route) {
     switch (route) {
       case '/all-tender':
-        currentPage = AllTenderPage();
+        currentPage.value = AllTenderPage();
         break;
       case '/tender-input':
-        currentPage = const TenderInputPage();
+        currentPage.value = TenderInputPage();
         break;
       case '/add-tender-method':
-        currentPage = AddTenderMethodPage();
+        currentPage.value = AddTenderMethodPage();
         break;
       case '/add-location':
-        currentPage = AddLocationPage();
+        currentPage.value = AddLocationPage();
         break;
       case '/add-department':
-        currentPage = InsertDepartmentForm();
+        currentPage.value = InsertDepartmentForm();
         break;
       case '/logout':
         _logout();
         break;
       default:
-        currentPage = const Center(
-            child: Text('Page Not Found',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)));
+        currentPage.value = const Center(
+          child: Text('Page Not Found', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
+        );
         break;
     }
-    update();
   }
 
   Future<void> _logout() async {

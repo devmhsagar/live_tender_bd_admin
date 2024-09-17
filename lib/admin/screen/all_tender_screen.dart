@@ -43,7 +43,7 @@ class _AllTenderPageState extends State<AllTenderPage> {
       await _databaseMethods.deleteTender(tenderId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tender deleted successfully')),
+        const SnackBar(content: Text('Tender deleted successfully')),
       );
     } catch (e) {
       // Revert UI changes if deletion fails
@@ -53,7 +53,7 @@ class _AllTenderPageState extends State<AllTenderPage> {
 
       print('Error deleting tender: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete tender')),
+        const SnackBar(content: Text('Failed to delete tender')),
       );
     }
   }
@@ -62,13 +62,13 @@ class _AllTenderPageState extends State<AllTenderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Tender List'),
+        title: const Text('All Tender List'),
         actions: [
           Container(
             width: 200,
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search...',
                 border: InputBorder.none,
                 icon: Icon(Icons.search),
@@ -96,7 +96,7 @@ class _AllTenderPageState extends State<AllTenderPage> {
         stream: FirebaseFirestore.instance.collection('tenders').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           _tenders = snapshot.data!.docs.map((doc) {

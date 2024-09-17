@@ -13,7 +13,7 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.grey[800], // Match the sidebar color
+        backgroundColor: Colors.grey[800],
         titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -36,11 +36,7 @@ class DashboardPage extends StatelessWidget {
               children: [
                 const Sidebar(),
                 Expanded(
-                  child: GetBuilder<MainController>(
-                    builder: (_) {
-                      return mainController.currentPage;
-                    },
-                  ),
+                  child: Obx(() => mainController.currentPage.value),
                 ),
               ],
             );
@@ -60,11 +56,7 @@ class DashboardPage extends StatelessWidget {
               drawer: const Drawer(
                 child: Sidebar(),
               ),
-              body: GetBuilder<MainController>(
-                builder: (_) {
-                  return mainController.currentPage;
-                },
-              ),
+              body: Obx(() => mainController.currentPage.value),
             );
           }
         },

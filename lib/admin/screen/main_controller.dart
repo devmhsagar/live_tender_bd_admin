@@ -6,13 +6,14 @@ import 'package:live_tender_bd_admin/admin/screen/add_department_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/add_location_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/add_method_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/all_tender_screen.dart';
+import 'package:live_tender_bd_admin/admin/screen/report_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/tender_input_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainController extends GetxController {
   var currentPage = Rx<Widget>(const Center(
-    child: Text('Welcome to the Dashboard', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
-  ));
+      child: Text('Welcome to the Dashboard',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))));
 
   @override
   void onInit() {
@@ -20,12 +21,16 @@ class MainController extends GetxController {
     _checkLoginState();
   }
 
-  void _checkLoginState() async {
+  Future<void> _checkLoginState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    if (!isLoggedIn) {
-      Get.offAll(() => LoginPage());
+    // Check Firebase Authentication
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (!isLoggedIn || user == null) {
+      Get.offAll(
+          () => LoginPage()); // User is not logged in, navigate to Login Page
     }
   }
 
@@ -46,13 +51,16 @@ class MainController extends GetxController {
       case '/add-department':
         currentPage.value = InsertDepartmentForm();
         break;
+      case '/report':
+        currentPage.value = ReportScreen();
+        break;
       case '/logout':
         _logout();
         break;
       default:
         currentPage.value = const Center(
-          child: Text('Page Not Found', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
-        );
+            child: Text('Page Not Found',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)));
         break;
     }
   }

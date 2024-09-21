@@ -17,6 +17,7 @@ class Sidebar extends StatelessWidget {
           SidebarItem(Icons.add_box, 'Add Tender Method', '/add-tender-method'),
           SidebarItem(Icons.add_location, 'Add Location', '/add-location'),
           SidebarItem(Icons.add_business, 'Add Department', '/add-department'),
+          SidebarItem(Icons.bar_chart, 'Report', '/report'),
           Spacer(),
           SidebarItem(Icons.logout, 'Logout', '/logout'),
         ],

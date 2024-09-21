@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:live_tender_bd_admin/admin/service/database.dart';
-import 'package:live_tender_bd_admin/admin/service/tender_view_model.dart';
-import 'package:live_tender_bd_admin/admin/widget/narrow_layout.dart';
-import 'package:live_tender_bd_admin/admin/widget/wide_layout.dart';
 
 class TenderInputPage extends StatefulWidget {
   const TenderInputPage({Key? key}) : super(key: key);
@@ -28,60 +25,85 @@ class _TenderInputPageState extends State<TenderInputPage> {
   final othersController = TextEditingController();
   final tenderLastDateController = TextEditingController();
 
-  List<String> departments = [];
-  List<String> locations = [];
-
   @override
   void initState() {
     super.initState();
-    fetchDepartments();
-    fetchLocations();
   }
 
-  void fetchDepartments() async {
+  Future<List<String>> fetchDepartments() async {
     final QuerySnapshot result =
         await FirebaseFirestore.instance.collection('departments').get();
     final List<DocumentSnapshot> documents = result.docs;
-    setState(() {
-      departments = documents.map((doc) => doc['name'] as String).toList();
-    });
+    return documents.map((doc) => doc['name'] as String).toList();
   }
 
-  void fetchLocations() async {
+  Future<List<String>> fetchLocations() async {
     final QuerySnapshot result =
         await FirebaseFirestore.instance.collection('locations').get();
     final List<DocumentSnapshot> documents = result.docs;
+    return documents.map((doc) => doc['name'] as String).toList();
+  }
+
+  void addDepartment(String newDepartment) async {
+    await FirebaseFirestore.instance
+        .collection('departments')
+        .add({'name': newDepartment});
     setState(() {
-      locations = documents.map((doc) => doc['name'] as String).toList();
+      fetchDepartments();
     });
   }
 
-  void submitForm() async {
-    final databaseMethods = DatabaseMethods();
-    final tenderId = tenderIdController.text.trim();
-    final docPrice = docPriceController.text.trim();
-    final tenderSecurity = tenderSecurityController.text.trim();
-    final method = methodController.text.trim();
-    final nameOfWork = nameOfWorkController.text.trim();
-    final department = departmentController.text.trim();
-    final location = locationController.text.trim();
-    final liquid = liquidController.text.trim();
-    final similar = similarController.text.trim();
-    final turnover = turnoverController.text.trim();
-    final tenderCapacity = tenderCapacityController.text.trim();
-    final others = othersController.text.trim();
-    final tenderLastDate = tenderLastDateController.text.trim();
+  void addLocation(String newLocation) async {
+    await FirebaseFirestore.instance
+        .collection('locations')
+        .add({'name': newLocation});
+    setState(() {
+      fetchLocations();
+    });
+  }
 
-    if (tenderId.isEmpty ||
-        docPrice.isEmpty ||
-        tenderSecurity.isEmpty ||
-        method.isEmpty ||
-        nameOfWork.isEmpty ||
-        department.isEmpty ||
-        location.isEmpty ||
-        liquid.isEmpty ||
-        tenderLastDate.isEmpty) {
-      // Check tenderLastDate as well
+  void showAddDialog(BuildContext context, String fieldType) {
+    TextEditingController controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add New $fieldType'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: 'Enter $fieldType'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  if (fieldType == 'Department') {
+                    addDepartment(controller.text.trim());
+                  } else if (fieldType == 'Location') {
+                    addLocation(controller.text.trim());
+                  }
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // This function will submit the form data to Firestore
+  void submitForm() async {
+    // Ensure required fields are not empty
+    if (tenderIdController.text.isEmpty || nameOfWorkController.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please fill in all required fields.",
         toastLength: Toast.LENGTH_LONG,
@@ -89,48 +111,37 @@ class _TenderInputPageState extends State<TenderInputPage> {
       return;
     }
 
-    final tenderIdExists = await databaseMethods.tenderIdExists(tenderId);
-    if (tenderIdExists) {
-      Fluttertoast.showToast(
-        msg: "Tender ID already exists.",
-        toastLength: Toast.LENGTH_LONG,
-      );
-      return;
-    }
+    // Submit to Firestore
+    await FirebaseFirestore.instance.collection('tenders').add({
+      'tenderId': tenderIdController.text.trim(),
+      'docPrice': docPriceController.text.trim(),
+      'tenderSecurity': tenderSecurityController.text.trim(),
+      'method': methodController.text.trim(),
+      'nameOfWork': nameOfWorkController.text.trim(),
+      'department': departmentController.text.trim(),
+      'location': locationController.text.trim(),
+      'liquid': liquidController.text.trim(),
+      'similar': similarController.text.trim(),
+      'turnover': turnoverController.text.trim(),
+      'tenderCapacity': tenderCapacityController.text.trim(),
+      'others': othersController.text.trim(),
+      'tenderLastDate': tenderLastDateController.text.trim(),
+    });
 
-    final uniqueId = databaseMethods.generateUniqueId();
-    final tender = Tender(
-      id: uniqueId,
-      tenderId: tenderId,
-      docPrice: docPrice,
-      tenderSecurity: tenderSecurity,
-      method: method,
-      nameOfWork: nameOfWork,
-      department: department,
-      location: location,
-      lastDate: tenderLastDate, // Pass tenderLastDate to lastDate
-      liquid: liquid,
-      similar: similar,
-      turnover: turnover,
-      tenderCapacity: tenderCapacity,
-      others: others,
-      tenderLastDate: tenderLastDate,
-    );
-
-    await databaseMethods.addTender(tender);
-
+    // Show success message
     Fluttertoast.showToast(
       msg: "Tender details submitted successfully.",
       toastLength: Toast.LENGTH_LONG,
     );
 
+    // Clear all fields after submitting
     tenderIdController.clear();
     docPriceController.clear();
     tenderSecurityController.clear();
-    methodController.clear();
+    methodController.clear(); // Clear method field
     nameOfWorkController.clear();
-    departmentController.clear();
-    locationController.clear();
+    departmentController.clear(); // Clear department field
+    locationController.clear(); // Clear location field
     liquidController.clear();
     similarController.clear();
     turnoverController.clear();
@@ -141,50 +152,231 @@ class _TenderInputPageState extends State<TenderInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isWideLayout = MediaQuery.of(context).size.width > 600;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tender Input Page'),
       ),
-      body: SingleChildScrollView(
-        child: isWideLayout
-            ? WideLayout(
-                departments: departments,
-                locations: locations,
-                tenderIdController: tenderIdController,
-                docPriceController: docPriceController,
-                tenderSecurityController: tenderSecurityController,
-                methodController: methodController,
-                nameOfWorkController: nameOfWorkController,
-                departmentController: departmentController,
-                locationController: locationController,
-                liquidController: liquidController,
-                similarController: similarController,
-                turnoverController: turnoverController,
-                tenderCapacityController: tenderCapacityController,
-                othersController: othersController,
-                tenderLastDateController: tenderLastDateController,
-                submitForm: submitForm,
-              )
-            : NarrowLayout(
-                departments: departments,
-                locations: locations,
-                tenderIdController: tenderIdController,
-                docPriceController: docPriceController,
-                tenderSecurityController: tenderSecurityController,
-                methodController: methodController,
-                nameOfWorkController: nameOfWorkController,
-                departmentController: departmentController,
-                locationController: locationController,
-                liquidController: liquidController,
-                similarController: similarController,
-                turnoverController: turnoverController,
-                tenderCapacityController: tenderCapacityController,
-                othersController: othersController,
-                tenderLastDateController: tenderLastDateController,
-                submitForm: submitForm,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: tenderIdController,
+                      decoration: const InputDecoration(
+                        labelText: 'Tender ID',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: docPriceController,
+                      decoration: const InputDecoration(
+                        labelText: 'Doc Price',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: tenderSecurityController,
+                      decoration: const InputDecoration(
+                        labelText: 'Tender Security',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      items: ['LTM', 'OTM', 'OSTETM', 'RFQU', 'RFQ'],
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: "Method",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      onChanged: (newValue) {
+                        methodController.text = newValue ?? '';
+                      },
+                      selectedItem: methodController.text,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameOfWorkController,
+                decoration: const InputDecoration(
+                  labelText: 'Name of Work',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      asyncItems: (String? filter) => fetchDepartments(),
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: "Department",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      onChanged: (newValue) {
+                        departmentController.text = newValue ?? '';
+                      },
+                      selectedItem: departmentController.text,
+                      popupProps: PopupProps.menu(
+                        showSearchBox: true, // Enable search box
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      showAddDialog(context, 'Department');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownSearch<String>(
+                      asyncItems: (String? filter) => fetchLocations(),
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: "Location",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      onChanged: (newValue) {
+                        locationController.text = newValue ?? '';
+                      },
+                      selectedItem: locationController.text,
+                      popupProps: PopupProps.menu(
+                        showSearchBox: true, // Enable search box
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      showAddDialog(context, 'Location');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: liquidController,
+                      decoration: const InputDecoration(
+                        labelText: 'Liquid',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: similarController,
+                      decoration: const InputDecoration(
+                        labelText: 'Similar',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedDate != null) {
+                          tenderLastDateController.text =
+                              pickedDate.toString().split(' ')[0];
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: tenderLastDateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Last Date',
+                            border: OutlineInputBorder(),
+                            suffixIcon: Icon(Icons.calendar_today),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: turnoverController,
+                      decoration: const InputDecoration(
+                        labelText: 'Turnover',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: tenderCapacityController,
+                      decoration: const InputDecoration(
+                        labelText: 'Tender Capacity',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: othersController,
+                decoration: const InputDecoration(
+                  labelText: 'Others',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: submitForm,
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

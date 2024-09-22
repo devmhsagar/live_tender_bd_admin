@@ -5,7 +5,10 @@
 
     <meta charset="UTF-8" />
     <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
-    <meta name="description" content="live_tender_bd_admin" />
+    <meta
+      name="description"
+      content="Live Tender BD is your one-stop solution for staying updated with the latest tender notices across Bangladesh. Designed for contractors, suppliers, and businesses of all sizes, this app ensures you never miss an important tender opportunity. With real-time notifications and detailed tender information, Live Tender BD makes it easy for you to find, track, and apply for tenders that suit your business needs."
+    />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -14,7 +17,7 @@
 
     <link rel="icon" type="image/png" href="favicon.png" />
 
-    <title>live_tender_bd_admin</title>
+    <title>Live Tender BD</title>
     <link rel="manifest" href="manifest.json" />
 
     <!-- Firebase SDKs -->
@@ -33,8 +36,48 @@
 
       firebase.initializeApp(firebaseConfig);
     </script>
+
+    <style>
+      /* Splash screen এর জন্য স্টাইল */
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #ffffff; /* ব্যাকগ্রাউন্ড কালার পরিবর্তন করুন */
+      }
+
+      #loading {
+        width: 100px;
+        height: 100px;
+        border: 10px solid #f3f3f3;
+        border-top: 10px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
+
   <body>
+    <div id="loading"></div>
+
+    <script>
+      window.addEventListener("load", function () {
+        document.getElementById("loading").style.display = "none";
+      });
+    </script>
+
     <script src="flutter_bootstrap.js" async></script>
   </body>
 </html>

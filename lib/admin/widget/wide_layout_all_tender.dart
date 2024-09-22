@@ -47,7 +47,11 @@ class WideLayout extends StatelessWidget {
                 ),
               ),
               DataCell(Text(tender.method)),
-              DataCell(Text(tender.location)),
+              DataCell(SizedBox(
+                width: 100,
+                child: Text(tender.location,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+              )),
               DataCell(Text(tender.lastDate)),
               DataCell(Row(
                 children: [

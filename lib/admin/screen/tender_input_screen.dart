@@ -25,9 +25,26 @@ class _TenderInputPageState extends State<TenderInputPage> {
   final othersController = TextEditingController();
   final tenderLastDateController = TextEditingController();
 
+  bool isDuplicateTenderId = false;
+
   @override
   void initState() {
     super.initState();
+    tenderIdController.addListener(() {
+      checkDuplicateTenderId(tenderIdController.text);
+    });
+  }
+
+  // Function to check if tenderId is duplicate
+  Future<void> checkDuplicateTenderId(String tenderId) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('tenders')
+        .where('tenderId', isEqualTo: tenderId.trim())
+        .get();
+
+    setState(() {
+      isDuplicateTenderId = querySnapshot.docs.isNotEmpty;
+    });
   }
 
   Future<List<String>> fetchDepartments() async {
@@ -103,9 +120,26 @@ class _TenderInputPageState extends State<TenderInputPage> {
   // This function will submit the form data to Firestore
   void submitForm() async {
     // Ensure required fields are not empty
-    if (tenderIdController.text.isEmpty || nameOfWorkController.text.isEmpty) {
+    if (tenderIdController.text.isEmpty ||
+        nameOfWorkController.text.isEmpty ||
+        departmentController.text.isEmpty ||
+        locationController.text.isEmpty ||
+        docPriceController.text.isEmpty ||
+        tenderSecurityController.text.isEmpty ||
+        methodController.text.isEmpty ||
+        liquidController.text.isEmpty ||
+        tenderLastDateController.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please fill in all required fields.",
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return;
+    }
+
+    // Check if tenderId is duplicate before submission
+    if (isDuplicateTenderId) {
+      Fluttertoast.showToast(
+        msg: "Tender ID already exists. Please use a different ID.",
         toastLength: Toast.LENGTH_LONG,
       );
       return;
@@ -138,10 +172,10 @@ class _TenderInputPageState extends State<TenderInputPage> {
     tenderIdController.clear();
     docPriceController.clear();
     tenderSecurityController.clear();
-    methodController.clear(); // Clear method field
+    methodController.clear();
     nameOfWorkController.clear();
-    departmentController.clear(); // Clear department field
-    locationController.clear(); // Clear location field
+    departmentController.clear();
+    locationController.clear();
     liquidController.clear();
     similarController.clear();
     turnoverController.clear();
@@ -166,9 +200,12 @@ class _TenderInputPageState extends State<TenderInputPage> {
                   Expanded(
                     child: TextField(
                       controller: tenderIdController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Tender ID',
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
+                        errorText: isDuplicateTenderId
+                            ? 'Tender ID already exists'
+                            : null,
                       ),
                     ),
                   ),

@@ -99,47 +99,72 @@ class _AllTenderPageState extends State<AllTenderPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          _tenders = snapshot.data!.docs.map((doc) {
+          // Convert Firestore data to List<Tender>
+          List<Tender> fetchedTenders = snapshot.data!.docs.map((doc) {
             return Tender.fromMap(doc.data() as Map<String, dynamic>);
           }).toList();
 
           // Apply search filter
           if (_searchQuery.isNotEmpty) {
-            _tenders = _tenders.where((tender) {
+            fetchedTenders = fetchedTenders.where((tender) {
               return tender.tenderId.contains(_searchQuery) ||
                   tender.nameOfWork.contains(_searchQuery) ||
                   tender.department.contains(_searchQuery) ||
                   tender.method.contains(_searchQuery) ||
                   tender.location.contains(_searchQuery) ||
-                  tender.lastDate.contains(_searchQuery);
+                  tender.tenderLastDate.contains(_searchQuery);
             }).toList();
           }
 
           // Apply date filter
           if (_filter == 'Oldest Tender') {
-            _tenders = _tenders.where((tender) {
+            fetchedTenders = fetchedTenders.where((tender) {
               try {
-                return DateTime.parse(tender.lastDate).isBefore(DateTime.now());
+                return DateTime.parse(tender.tenderLastDate)
+                    .isBefore(DateTime.now());
               } catch (e) {
-                return false;
+                return false; // Skip if date parsing fails
               }
             }).toList();
+
+            // Sort by ascending order (oldest first)
+            fetchedTenders.sort((a, b) {
+              try {
+                return DateTime.parse(a.tenderLastDate)
+                    .compareTo(DateTime.parse(b.tenderLastDate));
+              } catch (e) {
+                return 0; // Do not sort if parsing fails
+              }
+            });
           } else if (_filter == 'Newest Tender') {
-            _tenders = _tenders.where((tender) {
+            fetchedTenders = fetchedTenders.where((tender) {
               try {
-                return DateTime.parse(tender.lastDate).isAfter(DateTime.now());
+                return DateTime.parse(tender.tenderLastDate)
+                    .isAfter(DateTime.now());
               } catch (e) {
-                return false;
+                return false; // Skip if date parsing fails
               }
             }).toList();
+
+            // Sort by descending order (newest first)
+            fetchedTenders.sort((a, b) {
+              try {
+                return DateTime.parse(b.tenderLastDate)
+                    .compareTo(DateTime.parse(a.tenderLastDate));
+              } catch (e) {
+                return 0; // Do not sort if parsing fails
+              }
+            });
           }
 
           return LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth > 600) {
-                return WideLayout(tenders: _tenders, onDelete: _deleteTender);
+                return WideLayout(
+                    tenders: fetchedTenders, onDelete: _deleteTender);
               } else {
-                return NarrowLayout(tenders: _tenders, onDelete: _deleteTender);
+                return NarrowLayout(
+                    tenders: fetchedTenders, onDelete: _deleteTender);
               }
             },
           );

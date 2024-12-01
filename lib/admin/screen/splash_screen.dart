@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart'; // সুন্দর স্পিনার ইফেক্ট এর জন্য স্পিনকিট ব্যবহার করা হয়েছে
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -16,35 +16,32 @@ class _SplashScreenState extends State<SplashScreen> {
     simulateLoading();
   }
 
-  // এই ফাংশনটি লোডিংয়ের সময় প্রোগ্রেস আপডেট করে
-  void simulateLoading() {
-    Future.delayed(Duration(milliseconds: 500), () {
-      setState(() {
-        progressValue += 0.2; // প্রতি 500ms এ ২০% প্রগতি হবে
+  void simulateLoading() async {
+    for (int i = 1; i <= 5; i++) {
+      await Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          progressValue = i * 0.2;
+        });
       });
-
-      if (progressValue < 1.0) {
-        simulateLoading(); // 100% এর আগে আবার কল হবে
-      } else {
-        Get.offNamed('/'); // 100% হলে হোম পেজে পাঠাবে
-      }
-    });
+    }
+    Get.offNamed('/'); // 100% হলে নেক্সট স্ক্রিনে
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.white,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // সুন্দর ডিজাইনের কাস্টম স্পিনার ইফেক্ট (Spinkit)
-            SpinKitFadingCircle(
+            const SpinKitFadingCircle(
               color: Colors.blueAccent,
               size: 100.0,
             ),
-            SizedBox(height: 20),
-            // প্রগতি দেখানোর জন্য একটি চমৎকার CircularProgressIndicator
+            const SizedBox(height: 30),
             Stack(
               alignment: Alignment.center,
               children: [
@@ -52,28 +49,27 @@ class _SplashScreenState extends State<SplashScreen> {
                   height: 120,
                   width: 120,
                   child: CircularProgressIndicator(
-                    value:
-                        progressValue, // এখানে পার্সেন্টেজ অনুযায়ী প্রোগ্রেস দেখাবে
-                    strokeWidth: 10.0,
+                    value: progressValue,
+                    strokeWidth: 8.0,
                     backgroundColor: Colors.grey[300],
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                        const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
                   ),
                 ),
                 Text(
-                  '${(progressValue * 100).round()}%', // শতাংশ আকারে দেখাবে
-                  style: TextStyle(
-                    fontSize: 22,
+                  '${(progressValue * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueAccent,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Text(
-              'Loading...',
-              style: TextStyle(fontSize: 18, color: Colors.black54),
+            const SizedBox(height: 20),
+            const Text(
+              'Loading, please wait...',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
           ],
         ),

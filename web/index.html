@@ -2,27 +2,33 @@
 <html>
   <head>
     <base href="/" />
-
     <meta charset="UTF-8" />
     <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
     <meta
       name="description"
-      content="Live Tender BD is your one-stop solution for staying updated with the latest tender notices across Bangladesh. Designed for contractors, suppliers, and businesses of all sizes, this app ensures you never miss an important tender opportunity. With real-time notifications and detailed tender information, Live Tender BD makes it easy for you to find, track, and apply for tenders that suit your business needs."
+      content="Live Tender BD is your one-stop solution for staying updated with the latest tender notices across Bangladesh."
     />
-
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="live_tender_bd_admin" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
     <link rel="apple-touch-icon" href="icons/Icon-192.png" />
-
     <link rel="icon" type="image/png" href="favicon.png" />
-
     <title>Live Tender BD</title>
     <link rel="manifest" href="manifest.json" />
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+      defer
+    ></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      defer
+    ></script>
 
     <script type="module">
       const firebaseConfig = {
@@ -38,7 +44,6 @@
     </script>
 
     <style>
-      /* Splash screen এর জন্য স্টাইল */
       body {
         margin: 0;
         padding: 0;
@@ -46,16 +51,33 @@
         align-items: center;
         justify-content: center;
         height: 100vh;
-        background-color: #ffffff; /* ব্যাকগ্রাউন্ড কালার পরিবর্তন করুন */
+        background-color: #ffffff;
       }
 
       #loading {
-        width: 100px;
-        height: 100px;
-        border: 10px solid #f3f3f3;
-        border-top: 10px solid #3498db;
+        text-align: center;
+      }
+
+      #loading img {
+        width: 80px;
+        height: 80px;
+      }
+
+      #loading p {
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #3498db;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
         border-radius: 50%;
         animation: spin 1s linear infinite;
+        margin: 20px auto;
       }
 
       @keyframes spin {
@@ -70,10 +92,14 @@
   </head>
 
   <body>
-    <div id="loading"></div>
+    <div id="loading">
+      <img src="icons/logo.png" alt="Live Tender BD" />
+      <div class="spinner"></div>
+      <p>Loading, please wait...</p>
+    </div>
 
     <script>
-      window.addEventListener("load", function () {
+      window.addEventListener("flutter-first-frame", function () {
         document.getElementById("loading").style.display = "none";
       });
     </script>

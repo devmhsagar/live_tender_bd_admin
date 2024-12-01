@@ -7,43 +7,49 @@ import 'package:live_tender_bd_admin/admin/screen/home_screen.dart';
 import 'package:live_tender_bd_admin/admin/screen/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyDP7V4EBVabIZnlt3hrN3R0o06j2s9IzlU",
-      projectId: "livetenderbdadmin",
-      messagingSenderId: "928307222734",
-      appId: "1:928307222734:web:2a42bcee8f1ac25240589f",
-    ),
-  );
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({required this.isLoggedIn, super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/splash', // প্রথমে স্প্ল্যাশ স্ক্রিন দেখাবে
-      getPages: [
-        GetPage(
-            name: '/splash', page: () => SplashScreen()), // স্প্ল্যাশ স্ক্রিন
-        GetPage(name: '/', page: () => HomePage()), // হোম পেজ
-        GetPage(name: '/login', page: () => LoginPage()), // লগইন পেজ
-        GetPage(
-            name: '/dashboard',
-            page: () => DashboardWrapper()), // লগইন করলে ড্যাশবোর্ড
-      ],
+    return FutureBuilder(
+      future: Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyDP7V4EBVabIZnlt3hrN3R0o06j2s9IzlU",
+          projectId: "livetenderbdadmin",
+          messagingSenderId: "928307222734",
+          appId: "1:928307222734:web:2a42bcee8f1ac25240589f",
+        ),
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+          );
+        } else if (snapshot.hasError) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: Text('Error initializing Firebase')),
+            ),
+          );
+        }
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          initialRoute: '/splash',
+          getPages: [
+            GetPage(name: '/splash', page: () => SplashScreen()),
+            GetPage(name: '/', page: () => HomePage()),
+            GetPage(name: '/login', page: () => LoginPage()),
+            GetPage(name: '/dashboard', page: () => DashboardWrapper()),
+          ],
+        );
+      },
     );
   }
 }
@@ -55,16 +61,19 @@ class DashboardWrapper extends StatelessWidget {
       future: SharedPreferences.getInstance(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // লোডিং ইন্ডিকেটর
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
-        // চেক করা হচ্ছে লগইন স্টেট
-        final isLoggedIn = snapshot.data?.getBool('isLoggedIn') ?? false;
-        if (isLoggedIn) {
-          return DashboardPage(); // যদি লগইন করা থাকে, ড্যাশবোর্ডে যাবে
-        } else {
-          return LoginPage(); // লগইন না করলে লগইন পেজে নিয়ে যাবে
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text('Error loading preferences')),
+          );
         }
+
+        final isLoggedIn = snapshot.data?.getBool('isLoggedIn') ?? false;
+        return isLoggedIn ? DashboardPage() : LoginPage();
       },
     );
   }

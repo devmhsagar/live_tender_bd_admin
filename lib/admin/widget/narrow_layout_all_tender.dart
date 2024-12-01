@@ -28,7 +28,7 @@ class NarrowLayout extends StatelessWidget {
                 Text(tender.method),
                 Text(tender.location,
                     maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text(tender.lastDate),
+                Text(tender.tenderLastDate),
               ],
             ),
             trailing: Row(

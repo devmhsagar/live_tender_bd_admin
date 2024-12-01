@@ -52,7 +52,7 @@ class WideLayout extends StatelessWidget {
                 child: Text(tender.location,
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               )),
-              DataCell(Text(tender.lastDate)),
+              DataCell(Text(tender.tenderLastDate)),
               DataCell(Row(
                 children: [
                   IconButton(

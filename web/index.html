@@ -1,38 +1,109 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+  <head>
+    <base href="/" />
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta
+      name="description"
+      content="Live Tender BD is your one-stop solution for staying updated with the latest tender notices across Bangladesh."
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="live_tender_bd_admin" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <title>Live Tender BD</title>
+    <link rel="manifest" href="manifest.json" />
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    <!-- Firebase SDKs -->
+    <script
+      src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+      defer
+    ></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      defer
+    ></script>
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    <script type="module">
+      const firebaseConfig = {
+        apiKey: "AIzaSyDP7V4EBVabIZnlt3hrN3R0o06j2s9IzlU",
+        authDomain: "livetenderbdadmin.firebaseapp.com",
+        projectId: "livetenderbdadmin",
+        storageBucket: "livetenderbdadmin.appspot.com",
+        messagingSenderId: "928307222734",
+        appId: "1:928307222734:web:2a42bcee8f1ac25240589f",
+      };
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+      firebase.initializeApp(firebaseConfig);
+    </script>
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="live_tender_bd_admin">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #ffffff;
+      }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="live_tender_bd_admin">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+      #loading {
+        text-align: center;
+      }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+      #loading img {
+        width: 80px;
+        height: 80px;
+      }
 
-  <title>live_tender_bd_admin</title>
-  <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+      #loading p {
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #3498db;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="loading">
+      <img src="icons/logo.png" alt="Live Tender BD" />
+      <div class="spinner"></div>
+      <p>Loading, please wait...</p>
+    </div>
+
+    <script>
+      window.addEventListener("flutter-first-frame", function () {
+        document.getElementById("loading").style.display = "none";
+      });
+    </script>
+
+    <script src="flutter_bootstrap.js" async></script>
+  </body>
 </html>
